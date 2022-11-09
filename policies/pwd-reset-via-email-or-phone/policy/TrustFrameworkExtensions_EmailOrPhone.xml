@@ -1,270 +1,184 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<TrustFrameworkPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" PolicySchemaVersion="0.3.0.0" 
-  TenantId="yourtenant.onmicrosoft.com" 
-  PolicyId="B2C_1A_Demo_TrustFrameworkExtensions_PasswordReset_EmailOrPhone" 
-  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_Demo_TrustFrameworkExtensions_PasswordReset_EmailOrPhone">
- 
-  <BasePolicy>
-    <TenantId>yourtenant.onmicrosoft.com</TenantId>
-    <PolicyId>B2C_1A_TrustFrameworkExtensions</PolicyId>
-  </BasePolicy>
+<html>
+<head>
+  <title>Knowledge First Financial</title>
 
-  <BuildingBlocks>
-    <ClaimsSchema>
-      <ClaimType Id="mfaType">
-        <DisplayName>Method of verification</DisplayName>
-        <DataType>string</DataType>
-        <UserHelpText>Choose type of MFA</UserHelpText>
-        <UserInputType>RadioSingleSelect</UserInputType>
-        <Restriction>
-          <Enumeration Text="Email" Value="email" SelectByDefault="true" />
-          <Enumeration Text="Phone" Value="phone" />
-        </Restriction>
-      </ClaimType>
-      <ClaimType Id="readOnlyPhone">
-        <DisplayName>Phone Number</DisplayName>
-        <DataType>string</DataType>
-        <Mask Type="Simple">XXX-XXX-</Mask>
-        <UserHelpText>Phone Number</UserHelpText>
-        <UserInputType>Readonly</UserInputType>
-      </ClaimType>
-      <ClaimType Id="readOnlyEmail">
-        <DisplayName>Email</DisplayName>
-        <DataType>string</DataType>
-        <UserHelpText>Email</UserHelpText>
-        <UserInputType>Readonly</UserInputType>
-      </ClaimType>
-      <ClaimType Id="verificationCode">
-        <DisplayName>Verification Code</DisplayName>
-        <DataType>string</DataType>
-        <UserHelpText>Enter your SMS verification code</UserHelpText>
-        <UserInputType>TextBox</UserInputType>
-        <!--Restriction>
-          <Pattern RegularExpression="^[0-9]{1,15}$" HelpText="Please enter digits" />
-        </Restriction-->
-      </ClaimType>
-    </ClaimsSchema>
-    <ClaimsTransformations>
-      <ClaimsTransformation Id="CopyPhoneToReadOnly" TransformationMethod="CopyClaim">
-        <InputClaims>
-          <InputClaim ClaimTypeReferenceId="strongAuthenticationPhoneNumber" TransformationClaimType="inputClaim" />
-        </InputClaims>
-        <OutputClaims>
-          <OutputClaim ClaimTypeReferenceId="readOnlyPhone" TransformationClaimType="outputClaim" />
-        </OutputClaims>
-      </ClaimsTransformation>
-      <ClaimsTransformation Id="CopyEmailToReadOnly" TransformationMethod="CopyClaim">
-        <InputClaims>
-          <InputClaim ClaimTypeReferenceId="email" TransformationClaimType="inputClaim" />
-        </InputClaims>
-        <OutputClaims>
-          <OutputClaim ClaimTypeReferenceId="readOnlyEmail" TransformationClaimType="outputClaim" />
-        </OutputClaims>
-      </ClaimsTransformation>
-    </ClaimsTransformations>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://deveducateinc.azurewebsites.net/templates/assets/hco_fonts/hco_fonts.css" rel="stylesheet" type="text/css" />
+  <link href="https://localhost/PasswordResetStyle.css" rel="stylesheet" type="text/css" />
 
-    <DisplayControls>
-      <DisplayControl Id="verifyEmailOrPhoneControl" UserInterfaceControlType="VerificationControl">
-        <InputClaims>
-          <InputClaim ClaimTypeReferenceId="readOnlyPhone" />
-          <InputClaim ClaimTypeReferenceId="readOnlyEmail" />
-        </InputClaims>
-        <DisplayClaims>
-          <DisplayClaim ClaimTypeReferenceId="mfaType" Required="true" />
-          <DisplayClaim ClaimTypeReferenceId="readOnlyPhone" />
-          <DisplayClaim ClaimTypeReferenceId="readOnlyEmail" />
-          <DisplayClaim ClaimTypeReferenceId="verificationCode" ControlClaimType="VerificationCode" Required="true" />
-        </DisplayClaims>
-        <Actions>
-          <Action Id="SendCode">
-            <ValidationClaimsExchange>
-              <ValidationClaimsExchangeTechnicalProfile TechnicalProfileReferenceId="AzureMfa-SendSmsSimple">
-                <Preconditions>
-                  <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
-                    <Value>mfaType</Value>
-                    <Value>email</Value>
-                    <Action>SkipThisValidationTechnicalProfile</Action>
-                  </Precondition>
-                </Preconditions>
-              </ValidationClaimsExchangeTechnicalProfile>
-              <ValidationClaimsExchangeTechnicalProfile TechnicalProfileReferenceId="AadSspr-SendCode">
-                <Preconditions>
-                  <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
-                    <Value>mfaType</Value>
-                    <Value>phone</Value>
-                    <Action>SkipThisValidationTechnicalProfile</Action>
-                  </Precondition>
-                </Preconditions>
-              </ValidationClaimsExchangeTechnicalProfile>
-            </ValidationClaimsExchange>
-          </Action>
-          <Action Id="VerifyCode">
-            <ValidationClaimsExchange>
-              <ValidationClaimsExchangeTechnicalProfile TechnicalProfileReferenceId="AzureMfa-VerifySms">
-                <Preconditions>
-                  <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
-                    <Value>mfaType</Value>
-                    <Value>email</Value>
-                    <Action>SkipThisValidationTechnicalProfile</Action>
-                  </Precondition>
-                </Preconditions>
-              </ValidationClaimsExchangeTechnicalProfile>
-              <ValidationClaimsExchangeTechnicalProfile TechnicalProfileReferenceId="AadSspr-VerifyCode">
-                <Preconditions>
-                  <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
-                    <Value>mfaType</Value>
-                    <Value>phone</Value>
-                    <Action>SkipThisValidationTechnicalProfile</Action>
-                  </Precondition>
-                </Preconditions>
-              </ValidationClaimsExchangeTechnicalProfile>
-            </ValidationClaimsExchange>
-          </Action>
-        </Actions>
-      </DisplayControl>
-    </DisplayControls>
-  </BuildingBlocks>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Roboto:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&display=swap');
 
-  <ClaimsProviders>
-    <ClaimsProvider>
-      <DisplayName>Local Account Sign Up With Phone</DisplayName>
-      <TechnicalProfiles>
-        <TechnicalProfile Id="VerifyEmailOrPhone">
-          <DisplayName>Verify Email Or Phone</DisplayName>
-          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-          <Metadata>
-            <Item Key="ContentDefinitionReferenceId">api.selfasserted</Item>
-            <Item Key="language.button_continue">Continue</Item>
-          </Metadata>
-          <CryptographicKeys>
-            <Key Id="issuer_secret" StorageReferenceId="B2C_1A_TokenSigningKeyContainer" />
-          </CryptographicKeys>
-          <InputClaimsTransformations>
-            <InputClaimsTransformation ReferenceId="CopyPhoneToReadOnly" />
-            <InputClaimsTransformation ReferenceId="CopyEmailToReadOnly" />
-          </InputClaimsTransformations>
-          <DisplayClaims>
-            <DisplayClaim DisplayControlReferenceId="verifyEmailOrPhoneControl" />
-          </DisplayClaims>
-          <OutputClaims>
-            <OutputClaim ClaimTypeReferenceId="objectId" />
-            <OutputClaim ClaimTypeReferenceId="strongAuthenticationPhoneNumber" />
-          </OutputClaims>
-          <UseTechnicalProfileForSessionManagement ReferenceId="SM-MFA" />
-        </TechnicalProfile>
+   
+    #verifyEmailOrPhoneControl_but_send_code, 
+    #emailVerificationControl_success_message,
+    #verificationSuccessText,
+    #verificationCode_label,
+    #verifyEmailOrPhoneControl_but_change_claims,
+    #email_label,
+    #email,
+    #continue,
+    .RadioSingleSelect extension_mfaByPhoneOrEmail {
+      display: none;
+    }
+
+    .TextBox VerificationCode {
+      display: inline !important;
+    }
 
 
-        <TechnicalProfile Id="SM-MFA">
-          <PersistedClaims>
-            <PersistedClaim ClaimTypeReferenceId="strongAuthenticationPhoneNumber" />
-          </PersistedClaims>
-        </TechnicalProfile>
 
-      </TechnicalProfiles>
-    </ClaimsProvider>
+  </style>
+</head>
 
-    <ClaimsProvider>
-      <DisplayName>Local Account</DisplayName>
-      <TechnicalProfiles>
-        <TechnicalProfile Id="LocalAccountDiscoveryUsingEmailAddress_Custom">
-          <DisplayName>Reset password using email address</DisplayName>
-          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-          <Metadata>
-            <Item Key="ContentDefinitionReferenceId">api.selfasserted</Item>
-          </Metadata>
-          <OutputClaims>
-            <OutputClaim ClaimTypeReferenceId="email" Required="true" />
-            <OutputClaim ClaimTypeReferenceId="objectId" />
-            <OutputClaim ClaimTypeReferenceId="userPrincipalName" />
-            <OutputClaim ClaimTypeReferenceId="authenticationSource" />
-            <OutputClaim ClaimTypeReferenceId="strongAuthenticationPhoneNumber" />
-          </OutputClaims>
-          <ValidationTechnicalProfiles>
-            <ValidationTechnicalProfile ReferenceId="AAD-UserReadUsingEmailAddress" />
-          </ValidationTechnicalProfiles>
-        </TechnicalProfile>
-      </TechnicalProfiles>
-    </ClaimsProvider>
+<body>
+  <div class="container">
+    <div class="error-banner" style="display: none;">
+      <span class="material-icons">remove_circle_outline</span>
+      <p>Please register to proceed.</p>
+    </div>
+    <div class="success-banner" style="display: none;">
+      <span class="material-icons">task_alt</span>
+      <p>Please register to proceed.</p>
+    </div>
+    <div class="header">
+        <div class="header__img-container">
+            <a id="company-logo-link" href="https://deveducateinc.azurewebsites.net" class="header__img">
+                <h1 class="home__logo" alt="Home">Embark</h1>
+            </a>
+            <div>
+            <img
+                class="lock-icon"
+                src="https://deveducateinc.azurewebsites.net/templates/assets/icons/lock.svg"
+                alt="Lock">
+            </div>
+        </div>
+    </div>
+    <div class="content">
+      <div class="pageTitle">
+        Forgot Password
+      </div>
+      <div class="textHeader" id="textHeader">
+        We have sent a code to {email}. 
+      </div>
+      <div class="textInfo">
+        Please enter your 6-digit verification code.
+      </div>
+      <div id="api" data-name="SelfAsserted" role="main"></div>
+    </div>
 
-    <ClaimsProvider>
-      <DisplayName>Azure MFA</DisplayName>
-      <TechnicalProfiles>
-        <TechnicalProfile Id="AzureMfa-VerifySms">
-          <DisplayName>Verify Sms</DisplayName>
-          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.AzureMfaProtocolProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-          <Metadata>
-            <Item Key="Operation">Verify</Item>
-          </Metadata>
-          <InputClaims>
-            <InputClaim ClaimTypeReferenceId="readOnlyPhone" PartnerClaimType="phoneNumber" />
-            <InputClaim ClaimTypeReferenceId="verificationCode" />
-          </InputClaims>
-        </TechnicalProfile>
-        <TechnicalProfile Id="AzureMfa-SendSmsSimple">
-          <DisplayName>Send Sms</DisplayName>
-          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.AzureMfaProtocolProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-          <Metadata>
-            <Item Key="Operation">OneWaySMS</Item>
-          </Metadata>
-          <InputClaims>
-            <InputClaim ClaimTypeReferenceId="userPrincipalName" />
-            <InputClaim ClaimTypeReferenceId="readOnlyPhone" PartnerClaimType="phoneNumber" />
-          </InputClaims>
-        </TechnicalProfile>
-      </TechnicalProfiles>
-    </ClaimsProvider>
+  <script>
 
-    <ClaimsProvider>
-      <DisplayName>AAD SSPR</DisplayName>
-      <TechnicalProfiles>
-        <TechnicalProfile Id="AadSspr-SendCode">
-          <DisplayName>Send Code</DisplayName>
-          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.AadSsprProtocolProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-          <Metadata>
-            <Item Key="Operation">SendCode</Item>
-          </Metadata>
-          <InputClaims>
-            <InputClaim ClaimTypeReferenceId="readOnlyEmail" PartnerClaimType="emailAddress" />
-          </InputClaims>
-        </TechnicalProfile>
-        <TechnicalProfile Id="AadSspr-VerifyCode">
-          <DisplayName>Verify Code</DisplayName>
-          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.AadSsprProtocolProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-          <Metadata>
-            <Item Key="Operation">VerifyCode</Item>
-          </Metadata>
-          <InputClaims>
-            <InputClaim ClaimTypeReferenceId="verificationCode" />
-            <InputClaim ClaimTypeReferenceId="readOnlyEmail" PartnerClaimType="emailAddress" />
-          </InputClaims>
-        </TechnicalProfile>
-      </TechnicalProfiles>
-    </ClaimsProvider>
-  </ClaimsProviders>
 
-  <UserJourneys>
-    <UserJourney Id="PasswordReset_Custom">
-      <OrchestrationSteps>
-        <OrchestrationStep Order="1" Type="ClaimsExchange">
-          <ClaimsExchanges>
-            <ClaimsExchange Id="PasswordResetUsingEmailAddressExchange" TechnicalProfileReferenceId="LocalAccountDiscoveryUsingEmailAddress_Custom" />
-          </ClaimsExchanges>
-        </OrchestrationStep>
-        <OrchestrationStep Order="2" Type="ClaimsExchange">
-          <ClaimsExchanges>
-            <ClaimsExchange Id="VerifyEmailOrPhone" TechnicalProfileReferenceId="VerifyEmailOrPhone" />
-          </ClaimsExchanges>
-        </OrchestrationStep>
-        <OrchestrationStep Order="3" Type="ClaimsExchange">
-          <ClaimsExchanges>
-            <ClaimsExchange Id="NewCredentials" TechnicalProfileReferenceId="LocalAccountWritePasswordUsingObjectId" />
-          </ClaimsExchanges>
-        </OrchestrationStep>
-        <OrchestrationStep Order="4" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
-      </OrchestrationSteps>
-      <ClientDefinition ReferenceId="DefaultWeb" />
-    </UserJourney>
+    function maskEmail(str) {
+      const indexOfAt = str.indexOf('@');
+      if (indexOfAt <= 2) {
+        return str;
+      }
+      return str[0] + '*'.repeat(indexOfAt - 2) + str.substring(indexOfAt - 1);
+    }
 
-  </UserJourneys>
+    //mask email
+    const lblEmail = document.getElementById('email').value;
+    const header = document.getElementById('textHeader');
+    header.innerHTML = header.innerHTML.replace('{email}', maskEmail(lblEmail))
 
-</TrustFrameworkPolicy>
+    //Verification code input
+    const verificationCodeInput = document.getElementById('verificationCode');
+    verificationCodeInput.setAttribute('placeholder', " ");
+
+    const verificationCodeLabel = document.createElement('span');
+    verificationCodeLabel.setAttribute('id', 'verificationCodeLabel');
+    verificationCodeLabel.innerHTML = 'Security Code';
+    verificationCodeInput.insertAdjacentElement('afterend', verificationCodeLabel);
+
+    //cancel button
+    const cancelButton = document.getElementById('cancel');
+    cancelButton.onclick = function() {
+      history.back();
+    }
+
+
+    // border
+    let border = document.createElement('hr');
+    let borderClassName = 'border';
+    border.setAttribute('class', borderClassName);
+
+    let buttons = document.getElementsByClassName('buttons')[2];
+    buttons.insertAdjacentElement('afterend', border);
+
+    // Insert link to login
+    const signInLink = document.createElement('div');
+    signInLink.setAttribute('id', 'signInLink');
+    signInLink.innerHTML = `<b>Need more help? </b><a href="<%= __BASEURL__/book-appointment/details %>/signin">Contact us</a>`;
+    border.insertAdjacentElement('afterend', signInLink);
+
+    const successBanner = document.getElementsByClassName('success-banner')[0];
+
+    //click send code
+    let isDone = "false";
+    const loadingObserver = new MutationObserver(function(e) {
+      if(isDone === "false") {
+        document.getElementById('verifyEmailOrPhoneControl_but_send_code').click();
+      }
+      isDone = "true";
+
+      let lblVerificationSentMessage = document.getElementById('emailVerificationControl_success_message')
+      if(lblVerificationSentMessage) {
+        console.log('lblVerificationSentMessage 99:', lblVerificationSentMessage)
+        if(lblVerificationSentMessage.style.display === 'inline') {
+          console.log('lblVerificationSentMessage 3')
+          lblVerificationSentMessage.style.display = 'none'
+
+          if(document.getElementById('emailVerificationControl_success_message').innerHTML === 'The code has been verified. You can now continue.') {
+            console.log('inside')
+            successBanner.style.display = 'flex';
+            successBanner.childNodes[3].innerHTML = 'Identity successfully verified. Please continue. ';
+            document.getElementById("continue").style.display = 'inline'
+          }
+        }
+      }
+
+      let btnChangeClaims = document.getElementById('verifyEmailOrPhoneControl_but_change_claims');
+      if(btnChangeClaims) {
+        btnChangeClaims.style.display = 'none'
+      }
+
+      let buttonsClass =document.getElementsByClassName("buttons")[1]
+      if(buttonsClass) {
+        buttonsClass.style.flexDirection = "initial"
+      }
+
+      let txtVerificationCode = document.getElementsByClassName("TextBox VerificationCode")[0];
+      if(txtVerificationCode) {
+        txtVerificationCode.style.display = 'inline'
+      }
+      
+
+    });
+    loadingObserver.observe(document, {childList: true, subtree: true});
+    // observer.disconnect();
+
+    // configure the element to observe and the changes you want to check
+    // var observer = new MutationObserver(function(mutations) {
+    //   if(mutations.some(function(m) { return m.attributeName == 'disabled' && !m.target.disabled; }))
+    //   {
+    //     alert('Button was enabled');
+    //   }
+    // });
+
+    // observer.observe(btnSendCode, { attributes: true, childList: false, characterData: false });
+
+
+    
+
+    
+  
+
+  </script>
+</body>
+</html>
